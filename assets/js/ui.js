@@ -7,7 +7,11 @@ export function initUI() {
     saveLayout();
   });
 
-  document.getElementById('addPiece').addEventListener('click', addPiece);
+  document.getElementById('addPiece').addEventListener('click', () => {
+    addPiece();
+    saveLayout(); // Добавляем сохранение после добавления детали
+  });
+
   document.getElementById('saveLayout').addEventListener('click', saveLayout);
 
   document.getElementById('clearLayout').addEventListener('click', () => {
