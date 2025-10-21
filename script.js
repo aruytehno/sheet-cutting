@@ -12,20 +12,24 @@ let gridSize = 20;
 
 // === Инициализация листа ===
 function updateSheet() {
-  const w = parseInt(sheetWidthInput.value);
-  const h = parseInt(sheetHeightInput.value);
+  const w = parseInt(sheetWidthInput.value) || 800;
+  const h = parseInt(sheetHeightInput.value) || 400;
   sheet.style.width = `${w}px`;
   sheet.style.height = `${h}px`;
-  saveLayout();
+  // НЕ сохраняем здесь — иначе при загрузке мы перезапишем сохранённый layout пустым.
 }
+
+// сразу применяем размеры по умолчанию (не сохраняем)
 updateSheet();
 
 // === Добавление новой детали ===
 function addPiece(x = null, y = null, w = null, h = null) {
-  w = w || parseInt(pieceWidthInput.value);
-  h = h || parseInt(pieceHeightInput.value);
-  x = x ?? Math.random() * (sheet.clientWidth - w);
-  y = y ?? Math.random() * (sheet.clientHeight - h);
+  w = (w ?? parseInt(pieceWidthInput.value)) || 100;
+  h = (h ?? parseInt(pieceHeightInput.value)) || 80;
+
+  // если x/y не заданы, размещаем случайно внутри листа
+  x = x ?? Math.max(0, Math.floor(Math.random() * Math.max(1, sheet.clientWidth - w)));
+  y = y ?? Math.max(0, Math.floor(Math.random() * Math.max(1, sheet.clientHeight - h)));
 
   const div = document.createElement('div');
   div.classList.add('piece');
@@ -36,7 +40,7 @@ function addPiece(x = null, y = null, w = null, h = null) {
 
   sheet.appendChild(div);
   makeDraggable(div);
-  saveLayout();
+  saveLayout(); // сохраняем после добавления
 }
 
 // === Перетаскивание ===
@@ -44,12 +48,16 @@ function makeDraggable(el) {
   let offsetX, offsetY;
 
   el.addEventListener('mousedown', e => {
-    offsetX = e.offsetX;
-    offsetY = e.offsetY;
+    // поддержка вложенных элементов: вычислим смещение относительно элемента
+    const rect = el.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
-    const move = e => {
-      let x = e.pageX - sheet.offsetLeft - offsetX;
-      let y = e.pageY - sheet.offsetTop - offsetY;
+    const move = ev => {
+      // используем clientX/clientY и позицию sheet в окне
+      const sheetRect = sheet.getBoundingClientRect();
+      let x = ev.clientX - sheetRect.left - offsetX;
+      let y = ev.clientY - sheetRect.top - offsetY;
 
       // ограничиваем движение внутри листа
       x = Math.max(0, Math.min(x, sheet.clientWidth - el.clientWidth));
@@ -66,30 +74,42 @@ function makeDraggable(el) {
     const up = () => {
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
-      saveLayout();
+      saveLayout(); // сохраняем после окончания перетаскивания
     };
 
     document.addEventListener('mousemove', move);
     document.addEventListener('mouseup', up);
+  });
+
+  // Дополнительно: двойной клик — удалить элемент
+  el.addEventListener('dblclick', () => {
+    el.remove();
+    saveLayout();
   });
 }
 
 // === Сохранение раскроя ===
 function saveLayout() {
   const pieces = Array.from(sheet.querySelectorAll('.piece')).map(p => ({
-    x: parseInt(p.style.left),
-    y: parseInt(p.style.top),
-    w: parseInt(p.style.width),
-    h: parseInt(p.style.height)
+    x: Number(p.style.left.replace('px', '')) || 0,
+    y: Number(p.style.top.replace('px', '')) || 0,
+    w: Number(p.style.width.replace('px', '')) || 0,
+    h: Number(p.style.height.replace('px', '')) || 0
   }));
 
   const layout = {
-    sheetWidth: parseInt(sheetWidthInput.value),
-    sheetHeight: parseInt(sheetHeightInput.value),
+    sheetWidth: Number(sheetWidthInput.value) || parseInt(sheet.style.width) || 800,
+    sheetHeight: Number(sheetHeightInput.value) || parseInt(sheet.style.height) || 400,
     pieces
   };
 
-  localStorage.setItem('sheetLayout', JSON.stringify(layout));
+  try {
+    localStorage.setItem('sheetLayout', JSON.stringify(layout));
+    // для отладки можно раскомментировать:
+    // console.log('Layout saved', layout);
+  } catch (err) {
+    console.error('Не удалось сохранить в localStorage:', err);
+  }
 }
 
 // === Загрузка сохранённого раскроя ===
@@ -97,12 +117,32 @@ function loadLayout() {
   const data = localStorage.getItem('sheetLayout');
   if (!data) return;
 
-  const layout = JSON.parse(data);
-  sheetWidthInput.value = layout.sheetWidth;
-  sheetHeightInput.value = layout.sheetHeight;
-  updateSheet();
+  let layout;
+  try {
+    layout = JSON.parse(data);
+  } catch (err) {
+    console.error('Ошибка парсинга layout из localStorage:', err);
+    return;
+  }
 
-  layout.pieces.forEach(p => addPiece(p.x, p.y, p.w, p.h));
+  // очистим текущие элементы, чтобы не дублировать
+  sheet.innerHTML = '';
+
+  if (layout.sheetWidth) sheetWidthInput.value = layout.sheetWidth;
+  if (layout.sheetHeight) sheetHeightInput.value = layout.sheetHeight;
+  updateSheet(); // НЕ будет перезаписывать localStorage
+
+  // восстановим детали
+  if (Array.isArray(layout.pieces)) {
+    layout.pieces.forEach(p => {
+      // p.x/p.y/p.w/p.h ожидаем числа
+      addPiece(p.x ?? 0, p.y ?? 0, p.w ?? parseInt(pieceWidthInput.value), p.h ?? parseInt(pieceHeightInput.value));
+    });
+  }
+
+  // После полной загрузки приводим localStorage в соответствие с текущим DOM
+  // (это перезапишет только если формат/данные изменились), но уже после восстановления.
+  saveLayout();
 }
 
 // === Очистка раскроя ===
@@ -111,7 +151,12 @@ function clearLayout() {
   localStorage.removeItem('sheetLayout');
 }
 
-updateSheetBtn.addEventListener('click', updateSheet);
+// Привязываем обработчики
+updateSheetBtn.addEventListener('click', () => {
+  updateSheet();
+  // опционально сохраняем, если пользователь явно нажал "Обновить лист"
+  saveLayout();
+});
 addPieceBtn.addEventListener('click', addPiece);
 saveBtn.addEventListener('click', saveLayout);
 clearBtn.addEventListener('click', clearLayout);
