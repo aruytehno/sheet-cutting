@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Раскрой листа</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="controls">
+    <h2>Параметры листа</h2>
+    <label>Ширина (мм): <input type="number" id="sheetWidth" value="800"></label>
+    <label>Высота (мм): <input type="number" id="sheetHeight" value="400"></label>
+    <button id="updateSheet">Обновить лист</button>
+
+    <h2>Добавить деталь</h2>
+    <label>Ширина: <input type="number" id="pieceWidth" value="100"></label>
+    <label>Высота: <input type="number" id="pieceHeight" value="80"></label>
+    <button id="addPiece">Добавить</button>
+  </div>
+
+  <div id="workspace">
+    <div id="sheet"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
