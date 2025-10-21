@@ -39,6 +39,18 @@ body {
   background-color: #4caf50;
   color: white;
   border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+#controls button:hover {
+  background-color: #43a047;
+}
+
+#controls button#clearLayout {
+  background-color: #f44336;
+}
+#controls button#clearLayout:hover {
+  background-color: #d32f2f;
 }
 
 #workspace {
