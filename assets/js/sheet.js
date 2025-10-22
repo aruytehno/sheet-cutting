@@ -4,10 +4,8 @@ import { makeDraggable } from './drag.js';
 export const sheetsContainer = document.getElementById('sheets-container');
 
 let gridSize = 20;
-// Кэш для хранения цветов уже обработанных названий
+// Кэш для хранения цветов по идентификаторам партий
 const colorCache = new Map();
-// Счетчик для уникальных безымянных деталей
-let unnamedPieceCounter = 0;
 
 export function initSheet() {
   setupEventListeners();
@@ -36,7 +34,6 @@ function setupEventListeners() {
 export function renderSheets(sheets) {
   // Очищаем контейнер и кэш цветов при новом рендере
   colorCache.clear();
-  unnamedPieceCounter = 0;
   sheetsContainer.innerHTML = '';
 
   sheets.forEach((sheet, index) => {
@@ -80,8 +77,8 @@ function createPieceElement(piece) {
     div.classList.add('piece-large');
   }
 
-  // Генерируем уникальный цвет на основе названия и размера
-  const colorInfo = generateUniqueColor(piece);
+  // Генерируем цвет на основе идентификатора партии
+  const colorInfo = generateBatchColor(piece);
   div.style.backgroundColor = colorInfo.background;
   div.style.borderColor = colorInfo.border;
   div.style.color = colorInfo.text;
@@ -90,76 +87,68 @@ function createPieceElement(piece) {
   return div;
 }
 
-// Улучшенная функция генерации уникальных цветов
-// Альтернативная версия с предопределенной палитрой
-function generateUniqueColor(piece) {
-  const width = piece.width || piece.w;
-  const height = piece.height || piece.h;
+// Функция генерации цвета для партии
+function generateBatchColor(piece) {
+  // Создаем идентификатор партии на основе исходных данных
+  let batchId;
 
-  // Создаем уникальный ключ
-  let colorKey;
   if (piece.originalName) {
-    colorKey = piece.originalName;
+    // Для деталей с названием используем комбинацию размера и названия
+    batchId = `${piece.width}x${piece.height}-${piece.originalName}`;
   } else {
-    colorKey = `unnamed_${width}x${height}_${unnamedPieceCounter++}`;
+    // Для безымянных деталей используем только размер
+    batchId = `${piece.width}x${piece.height}`;
   }
 
-  if (colorCache.has(colorKey)) {
-    return colorCache.get(colorKey);
+  // Если цвет уже был сгенерирован для этой партии - используем из кэша
+  if (colorCache.has(batchId)) {
+    return colorCache.get(batchId);
   }
 
   // Предопределенная палитра разнообразных цветов
   const colorPalette = [
     // Красные оттенки
     { background: 'hsl(0, 70%, 50%)', border: 'hsl(0, 70%, 35%)', text: '#ffffff' },
-    { background: 'hsl(10, 75%, 55%)', border: 'hsl(10, 75%, 40%)', text: '#000000' },
 
     // Оранжевые оттенки
     { background: 'hsl(30, 80%, 50%)', border: 'hsl(30, 80%, 35%)', text: '#000000' },
-    { background: 'hsl(40, 85%, 55%)', border: 'hsl(40, 85%, 40%)', text: '#000000' },
 
     // Желтые оттенки
     { background: 'hsl(50, 90%, 55%)', border: 'hsl(50, 90%, 40%)', text: '#000000' },
-    { background: 'hsl(60, 85%, 60%)', border: 'hsl(60, 85%, 45%)', text: '#000000' },
 
     // Зеленые оттенки
     { background: 'hsl(120, 70%, 45%)', border: 'hsl(120, 70%, 30%)', text: '#ffffff' },
-    { background: 'hsl(140, 75%, 50%)', border: 'hsl(140, 75%, 35%)', text: '#000000' },
-    { background: 'hsl(160, 80%, 55%)', border: 'hsl(160, 80%, 40%)', text: '#000000' },
 
     // Синие оттенки
     { background: 'hsl(200, 75%, 50%)', border: 'hsl(200, 75%, 35%)', text: '#ffffff' },
-    { background: 'hsl(220, 80%, 55%)', border: 'hsl(220, 80%, 40%)', text: '#ffffff' },
-    { background: 'hsl(240, 70%, 50%)', border: 'hsl(240, 70%, 35%)', text: '#ffffff' },
 
     // Фиолетовые оттенки
     { background: 'hsl(270, 75%, 55%)', border: 'hsl(270, 75%, 40%)', text: '#ffffff' },
-    { background: 'hsl(300, 80%, 60%)', border: 'hsl(300, 80%, 45%)', text: '#000000' },
-    { background: 'hsl(320, 70%, 55%)', border: 'hsl(320, 70%, 40%)', text: '#ffffff' },
 
     // Дополнительные цвета
+    { background: 'hsl(320, 70%, 55%)', border: 'hsl(320, 70%, 40%)', text: '#ffffff' },
     { background: 'hsl(180, 75%, 50%)', border: 'hsl(180, 75%, 35%)', text: '#000000' },
-    { background: 'hsl(100, 80%, 55%)', border: 'hsl(100, 80%, 40%)', text: '#000000' }
+    { background: 'hsl(100, 80%, 55%)', border: 'hsl(100, 80%, 40%)', text: '#000000' },
+    { background: 'hsl(140, 75%, 50%)', border: 'hsl(140, 75%, 35%)', text: '#000000' }
   ];
 
-  // Выбираем цвет на основе хэша ключа
+  // Выбираем цвет на основе хэша идентификатора партии
   let hash = 0;
-  for (let i = 0; i < colorKey.length; i++) {
-    hash = colorKey.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < batchId.length; i++) {
+    hash = batchId.charCodeAt(i) + ((hash << 5) - hash);
   }
 
   const colorIndex = Math.abs(hash) % colorPalette.length;
   const colorInfo = colorPalette[colorIndex];
 
   // Сохраняем в кэш
-  colorCache.set(colorKey, colorInfo);
+  colorCache.set(batchId, colorInfo);
 
   return colorInfo;
 }
 
 export function clearSheet() {
   colorCache.clear();
-  unnamedPieceCounter = 0;
   sheetsContainer.innerHTML = '';
 }
 
