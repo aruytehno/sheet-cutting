@@ -7,15 +7,22 @@
 </head>
 <body>
   <div id="controls">
-    <h2>Параметры листа</h2>
-    <label>Ширина (мм): <input type="number" id="sheetWidth" value="800"></label>
-    <label>Высота (мм): <input type="number" id="sheetHeight" value="400"></label>
-    <button id="updateSheet">Обновить лист</button>
+    <h2>Параметры раскроя</h2>
 
-    <h2>Добавить деталь</h2>
-    <label>Ширина: <input type="number" id="pieceWidth" value="100"></label>
-    <label>Высота: <input type="number" id="pieceHeight" value="80"></label>
-    <button id="addPiece">Добавить</button>
+    <label>Толщина реза (мм): <input type="number" id="cutWidth" value="2" min="0"></label>
+
+    <h2>Размеры деталей</h2>
+    <p>Формат: ШxВ-Количество-Название</p>
+    <textarea id="pieceInput" rows="6" style="width: 100%;">300x400-20
+200x500-3-Деталь 1
+400x300-1-Деталь 2
+600x700-2</textarea>
+
+    <h2>Листы и остатки</h2>
+    <p>Формат: ШxВ-Количество</p>
+    <textarea id="sheetInput" rows="3" style="width: 100%;">800x400-1</textarea>
+
+    <button id="calculate">Рассчитать</button>
 
     <h2>Управление</h2>
     <button id="saveLayout">💾 Сохранить</button>
@@ -23,9 +30,11 @@
   </div>
 
   <div id="workspace">
-    <div id="sheet"></div>
+    <div id="sheets-container">
+      <div id="sheet" class="sheet"></div>
+    </div>
   </div>
-<!-- Подключение модульного скрипта -->
+
   <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>

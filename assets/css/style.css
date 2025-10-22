@@ -8,7 +8,7 @@ body {
 }
 
 #controls {
-  width: 220px;
+  width: 280px;
   background: #fff;
   border: 1px solid #ccc;
   padding: 15px;
@@ -18,37 +18,78 @@ body {
 
 #controls h2 {
   font-size: 16px;
-  margin-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+#controls p {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 8px 0;
+  line-height: 1.3;
 }
 
 #controls label {
   display: block;
   margin: 8px 0;
+  font-size: 14px;
 }
 
 #controls input {
-  width: 80px;
+  width: 70px;
   margin-left: 5px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+#controls textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+#controls textarea.error {
+  border-color: #f44336;
+  background-color: #ffebee;
 }
 
 #controls button {
-  margin-top: 5px;
-  padding: 6px 10px;
+  margin-top: 8px;
+  padding: 8px 12px;
   cursor: pointer;
   border: none;
   background-color: #4caf50;
   color: white;
   border-radius: 4px;
   transition: background-color 0.2s;
+  width: 100%;
+  font-size: 14px;
 }
 
 #controls button:hover {
   background-color: #43a047;
 }
 
+#controls button#calculate {
+  background-color: #2196f3;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+#controls button#calculate:hover {
+  background-color: #1976d2;
+}
+
 #controls button#clearLayout {
   background-color: #f44336;
 }
+
 #controls button#clearLayout:hover {
   background-color: #d32f2f;
 }
@@ -56,11 +97,19 @@ body {
 #workspace {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
+  overflow: auto;
 }
 
-#sheet {
+#sheets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+}
+
+.sheet {
   background: repeating-linear-gradient(
       0deg,
       #f0f0f0,
@@ -75,6 +124,20 @@ body {
     );
   border: 2px solid #333;
   position: relative;
+  margin-bottom: 10px;
+}
+
+.sheet-header {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  padding: 2px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .piece {
@@ -85,9 +148,34 @@ body {
   border-radius: 2px;
   box-sizing: border-box;
   transition: box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .piece:active {
   cursor: grabbing;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.piece-large {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.error-message.show {
+  display: block;
 }
