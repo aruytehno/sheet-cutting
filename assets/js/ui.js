@@ -1,7 +1,7 @@
 // assets/js/ui.js
 import { renderSheets, clearSheet } from './sheet.js';
 import { saveLayout, clearStorage } from './storage.js';
-import { parsePiecesInput, parseSheetsInput, calculateLayout } from './calculator.js';
+import { parsePiecesInput, parseSheetsInput, calculateLayout, validateAllInput } from './calculator.js';
 
 export function initUI() {
   document.getElementById('calculate').addEventListener('click', calculateAndRender);
