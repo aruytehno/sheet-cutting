@@ -1,5 +1,5 @@
 // assets/js/ui.js
-import { renderSheets } from './sheet.js';
+import { renderSheets, clearSheet } from './sheet.js';
 import { saveLayout, clearStorage } from './storage.js';
 import { parsePiecesInput, parseSheetsInput, calculateLayout } from './calculator.js';
 

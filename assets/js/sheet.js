@@ -7,8 +7,8 @@ let gridSize = 20;
 
 export function initSheet() {
   setupEventListeners();
-  // Создаем начальный лист если нет сохраненных данных
-  if (sheetsContainer.children.length === 0) {
+  // Создаем начальный лист если нет сохраненных данных и контейнер действительно пуст
+  if (sheetsContainer.innerHTML.trim() === '') {
     const initialSheet = {
       width: 800,
       height: 400,
