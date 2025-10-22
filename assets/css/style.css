@@ -157,11 +157,16 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  font-weight: 500;
 }
 
 .piece:active {
   cursor: grabbing;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+  transform: scale(1.02);
+  transition: transform 0.1s;
 }
 
 .piece-large {
