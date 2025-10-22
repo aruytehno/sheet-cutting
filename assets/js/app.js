@@ -1,9 +1,10 @@
+// assets/js/app.js
 import { initUI } from './ui.js';
 import { loadLayout } from './storage.js';
 import { initSheet } from './sheet.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  initSheet();   // создаём лист
-  initUI();      // подключаем кнопки, вводы и обработчики
+  initSheet();   // инициализируем систему листов
+  initUI();      // подключаем кнопки и обработчики
   loadLayout();  // загружаем сохранённый раскрой
 });

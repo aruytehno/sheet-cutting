@@ -1,19 +1,28 @@
+// assets/js/storage.js
 export function saveLayout() {
-  const sheetWidthInput = document.getElementById('sheetWidth');
-  const sheetHeightInput = document.getElementById('sheetHeight');
-  const sheet = document.getElementById('sheet');
-  
-  const pieces = Array.from(sheet.querySelectorAll('.piece')).map(p => ({
-    x: Number(p.style.left.replace('px', '')) || 0,
-    y: Number(p.style.top.replace('px', '')) || 0,
-    w: Number(p.style.width.replace('px', '')) || 0,
-    h: Number(p.style.height.replace('px', '')) || 0
+  const sheetsContainer = document.getElementById('sheets-container');
+  const cutWidth = parseInt(document.getElementById('cutWidth').value) || 0;
+  const pieceInput = document.getElementById('pieceInput').value;
+  const sheetInput = document.getElementById('sheetInput').value;
+
+  const sheets = Array.from(sheetsContainer.querySelectorAll('.sheet')).map(sheet => ({
+    width: parseInt(sheet.style.width) || 800,
+    height: parseInt(sheet.style.height) || 400,
+    name: sheet.querySelector('.sheet-header')?.textContent || 'Лист',
+    pieces: Array.from(sheet.querySelectorAll('.piece')).map(piece => ({
+      x: Number(piece.style.left.replace('px', '')) || 0,
+      y: Number(piece.style.top.replace('px', '')) || 0,
+      w: Number(piece.style.width.replace('px', '')) || 0,
+      h: Number(piece.style.height.replace('px', '')) || 0,
+      name: piece.textContent || ''
+    }))
   }));
 
   const layout = {
-    sheetWidth: Number(sheetWidthInput.value) || parseInt(sheet.style.width) || 800,
-    sheetHeight: Number(sheetHeightInput.value) || parseInt(sheet.style.height) || 400,
-    pieces
+    cutWidth,
+    pieceInput,
+    sheetInput,
+    sheets
   };
 
   try {
@@ -34,6 +43,11 @@ export function loadLayout() {
     console.error('Ошибка парсинга layout из localStorage:', err);
     return;
   }
+
+  // Восстанавливаем ввод
+  if (layout.cutWidth) document.getElementById('cutWidth').value = layout.cutWidth;
+  if (layout.pieceInput) document.getElementById('pieceInput').value = layout.pieceInput;
+  if (layout.sheetInput) document.getElementById('sheetInput').value = layout.sheetInput;
 
   // Инициируем обновление через событие
   window.dispatchEvent(new CustomEvent('loadLayoutRequest', { detail: layout }));
