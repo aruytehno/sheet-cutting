@@ -1,7 +1,7 @@
 // assets/js/layout/layout-engine.js
 import { GuillotineBin } from '../algorithms/guillotine.js';
 import { RemnantManager } from '../algorithms/remnant-manager.js';
-import { sortPiecesCombined } from '../algorithms/sorting.js';
+import { sortPiecesByMaxSide, sortPiecesByArea, sortPiecesCombined } from '../algorithms/sorting.js';
 import { ProgressManager } from './progress-manager.js';
 
 /**
@@ -112,13 +112,9 @@ export class LayoutEngine {
     const suitableRemnant = remnantManager.findSuitableRemnant(piece, this.options.allowRotation);
 
     if (suitableRemnant) {
-      // Здесь можно добавить логику размещения на остатках
-      // Пока просто удаляем подходящий остаток
-      remnantManager.useRemnant(
-        suitableRemnant.remnantIndex,
-        suitableRemnant.orientation.width + cutWidth,
-        suitableRemnant.orientation.height + cutWidth
-      );
+      // Размещаем деталь на остатке
+      const placedPiece = remnantManager.placeOnRemnant(piece, suitableRemnant, cutWidth);
+      // Здесь можно добавить placedPiece в общий результат при необходимости
       return true;
     }
 
@@ -188,8 +184,8 @@ export class LayoutEngine {
       height: sheet.height,
       name: sheet.name,
       pieces: sheet.pieces.map(piece => ({
-        x: piece.x + this.options.cutWidth / 2,
-        y: piece.y + this.options.cutWidth / 2,
+        x: piece.x,
+        y: piece.y,
         width: piece.width,
         height: piece.height,
         name: piece.name,

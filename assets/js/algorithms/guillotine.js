@@ -61,8 +61,8 @@ export class GuillotineBin {
     // Размещаем деталь
     const placedPiece = {
       ...piece,
-      x: freeRect.x,
-      y: freeRect.y,
+      x: freeRect.x + this.cutWidth / 2,
+      y: freeRect.y + this.cutWidth / 2,
       width: orientation.width,
       height: orientation.height,
       rotated: orientation.rotated

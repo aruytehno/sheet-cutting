@@ -17,8 +17,7 @@ export async function calculateLayout(pieces, sheets, cutWidth, progressCallback
     sorting: 'combined',
     allowRotation: true,
     optimizeRemnants: true,
-    useRemnantsFirst: true,
-    cutWidth: cutWidth
+    useRemnantsFirst: true
   });
 
   const result = await engine.calculate(pieces, sheets, cutWidth, progressCallback);

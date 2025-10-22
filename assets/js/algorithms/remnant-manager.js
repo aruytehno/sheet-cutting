@@ -49,6 +49,31 @@ export class RemnantManager {
   }
 
   /**
+   * Разместить деталь на остатке и вернуть информацию о размещении
+   */
+  placeOnRemnant(piece, remnantInfo, cutWidth) {
+    const { remnantIndex, remnant, orientation } = remnantInfo;
+
+    const placedPiece = {
+      ...piece,
+      x: remnant.x + cutWidth / 2,
+      y: remnant.y + cutWidth / 2,
+      width: orientation.width,
+      height: orientation.height,
+      rotated: orientation.rotated
+    };
+
+    // Используем остаток
+    this.useRemnant(
+      remnantIndex,
+      orientation.width + cutWidth,
+      orientation.height + cutWidth
+    );
+
+    return placedPiece;
+  }
+
+  /**
    * Использовать остаток для размещения детали
    */
   useRemnant(remnantIndex, usedWidth, usedHeight) {
