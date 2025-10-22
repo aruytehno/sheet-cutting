@@ -70,21 +70,3 @@ function calculateAndRender() {
     alert('Произошла ошибка при расчете раскроя. Проверьте входные данные.');
   }
 }
-
-function clearSheet() {
-  const sheetsContainer = document.getElementById('sheets-container');
-  sheetsContainer.innerHTML = '';
-
-  // Создаем пустой лист по умолчанию
-  const initialSheet = {
-    width: 800,
-    height: 400,
-    name: 'Лист 1',
-    pieces: []
-  };
-
-  // Нужно импортировать renderSheets или вызвать через событие
-  window.dispatchEvent(new CustomEvent('renderSheets', {
-    detail: [initialSheet]
-  }));
-}
