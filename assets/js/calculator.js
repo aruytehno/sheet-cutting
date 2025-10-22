@@ -91,7 +91,7 @@ export function parseSheetsInput(text) {
   return { sheets, errors };
 }
 
-export function calculateLayout(pieces, sheets, cutWidth) {
+export function calculateLayout(pieces, sheets, cutWidth, progressCallback = null) {
   // Сортируем детали по убыванию площади (сначала крупные)
   const sortedPieces = [...pieces].sort((a, b) =>
     (b.width * b.height) - (a.width * a.height)
@@ -99,8 +99,10 @@ export function calculateLayout(pieces, sheets, cutWidth) {
 
   const resultSheets = [...sheets];
   const remainingPieces = [];
+  const totalPieces = sortedPieces.length;
 
-  for (const piece of sortedPieces) {
+  for (let i = 0; i < sortedPieces.length; i++) {
+    const piece = sortedPieces[i];
     let placed = false;
 
     // Пытаемся разместить на существующих листах
@@ -130,6 +132,12 @@ export function calculateLayout(pieces, sheets, cutWidth) {
 
     if (!placed) {
       remainingPieces.push(piece);
+    }
+
+    // Вызываем callback прогресса
+    if (progressCallback) {
+      const progress = Math.round((i + 1) / totalPieces * 100);
+      progressCallback(progress, i + 1, totalPieces);
     }
   }
 
