@@ -91,7 +91,7 @@ export function parseSheetsInput(text) {
   return { sheets, errors };
 }
 
-export function calculateLayout(pieces, sheets, cutWidth, progressCallback = null) {
+export async function calculateLayout(pieces, sheets, cutWidth, progressCallback = null) {
   // Сортируем детали по убыванию площади (сначала крупные)
   const sortedPieces = [...pieces].sort((a, b) =>
     (b.width * b.height) - (a.width * a.height)
@@ -134,10 +134,17 @@ export function calculateLayout(pieces, sheets, cutWidth, progressCallback = nul
       remainingPieces.push(piece);
     }
 
-    // Вызываем callback прогресса
+    // Вызываем callback прогресса и даем браузеру обновить UI
     if (progressCallback) {
       const progress = Math.round((i + 1) / totalPieces * 100);
       progressCallback(progress, i + 1, totalPieces);
+
+      // Даем браузеру обновить UI только каждые 50 деталей для больших наборов
+      // или чаще для маленьких наборов (чтобы прогресс был виден)
+      const updateFrequency = totalPieces > 100 ? 50 : 10;
+      if (i % updateFrequency === 0 || i === sortedPieces.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     }
   }
 

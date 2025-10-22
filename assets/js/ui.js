@@ -12,7 +12,7 @@ export function initUI() {
   });
 }
 
-function calculateAndRender() {
+async function calculateAndRender() {
   const pieceInput = document.getElementById('pieceInput');
   const sheetInput = document.getElementById('sheetInput');
   const cutWidth = parseInt(document.getElementById('cutWidth').value) || 0;
@@ -61,59 +61,57 @@ function calculateAndRender() {
   progressContainer.style.display = 'block';
   progressBar.style.width = '0%';
   progressPercent.textContent = '0%';
-  progressText.textContent = 'Подготовка к расчету...';
+  progressText.textContent = 'Начинаем расчет...';
 
-  // Используем setTimeout для разбивки вычислений и обновления UI
-  setTimeout(() => {
-    try {
-      // Функция обновления прогресса
-      const updateProgress = (percent, current, total) => {
-        progressBar.style.width = `${percent}%`;
-        progressPercent.textContent = `${percent}%`;
-        progressText.textContent = `Обработано ${current} из ${total} деталей`;
+  try {
+    // Функция обновления прогресса
+    const updateProgress = (percent, current, total) => {
+      progressBar.style.width = `${percent}%`;
+      progressPercent.textContent = `${percent}%`;
+      progressText.textContent = `Обработано ${current} из ${total} деталей`;
+    };
 
-        // Даем браузеру возможность обновить UI
-        if (percent % 5 === 0) {
-          return new Promise(resolve => setTimeout(resolve, 0));
-        }
-      };
+    // Даем браузеру обновить UI перед началом расчета
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-      // Рассчитываем раскрой с отслеживанием прогресса
-      const { sheets, remainingPieces } = calculateLayout(
-        parsedPieces,
-        parsedSheets,
-        cutWidth,
-        updateProgress
-      );
+    // Рассчитываем раскрой с отслеживанием прогресса
+    const { sheets, remainingPieces } = await calculateLayout(
+      parsedPieces,
+      parsedSheets,
+      cutWidth,
+      updateProgress
+    );
 
-      // Завершаем прогресс
-      progressBar.style.width = '100%';
-      progressPercent.textContent = '100%';
-      progressText.textContent = 'Завершено!';
+    // Завершаем прогресс
+    progressBar.style.width = '100%';
+    progressPercent.textContent = '100%';
+    progressText.textContent = 'Расчет завершен!';
 
-      // Рендерим результат
-      renderSheets(sheets);
+    // Даем браузеру обновить UI перед рендерингом
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Показываем предупреждение о непоместившихся деталях
-      if (remainingPieces.length > 0) {
-        setTimeout(() => {
-          alert(`Внимание! Не удалось разместить ${remainingPieces.length} деталей. Возможно, потребуются дополнительные листы.`);
-        }, 100);
-      }
+    // Рендерим результат
+    renderSheets(sheets);
 
-      // Сохраняем результат
-      saveLayout();
-
-    } catch (error) {
-      console.error('Ошибка при расчете раскроя:', error);
-      alert('Произошла ошибка при расчете раскроя. Проверьте входные данные.');
-    } finally {
-      // Восстанавливаем кнопку через небольшую задержку
+    // Показываем предупреждение о непоместившихся деталях
+    if (remainingPieces.length > 0) {
       setTimeout(() => {
-        calculateBtn.disabled = false;
-        calculateBtn.textContent = 'Рассчитать';
-        progressContainer.style.display = 'none';
-      }, 1000);
+        alert(`Внимание! Не удалось разместить ${remainingPieces.length} деталей. Возможно, потребуются дополнительные листы.`);
+      }, 200);
     }
-  }, 100);
+
+    // Сохраняем результат
+    saveLayout();
+
+  } catch (error) {
+    console.error('Ошибка при расчете раскроя:', error);
+    alert('Произошла ошибка при расчете раскроя. Проверьте входные данные.');
+  } finally {
+    // Восстанавливаем кнопку через небольшую задержку
+    setTimeout(() => {
+      calculateBtn.disabled = false;
+      calculateBtn.textContent = 'Рассчитать';
+      progressContainer.style.display = 'none';
+    }, 1000);
+  }
 }
